@@ -1,8 +1,11 @@
-
 import React from 'react';
 import { Sun, AlertTriangle } from 'lucide-react';
+import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 
 const Header = () => {
+  const { alerts, isLoading } = useSpaceWeatherData();
+  const activeAlertCount = alerts.filter(alert => alert.active).length;
+
   return (
     <header className="glass-panel border-b border-border/50 px-6 py-4 sticky top-0 z-50">
       <div className="flex items-center justify-between">
@@ -22,12 +25,24 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-space-700/50">
             <div className="w-2 h-2 bg-aurora-green rounded-full animate-pulse" />
-            <span className="text-sm font-mono text-aurora-green">SYSTEMS ONLINE</span>
+            <span className="text-sm font-mono text-aurora-green">
+              {isLoading ? 'UPDATING...' : 'SYSTEMS ONLINE'}
+            </span>
           </div>
           
-          <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-solar-orange/20 border border-solar-orange/30">
-            <AlertTriangle className="h-4 w-4 text-solar-orange" />
-            <span className="text-sm font-mono text-solar-orange">2 ACTIVE ALERTS</span>
+          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
+            activeAlertCount > 0 
+              ? 'bg-solar-orange/20 border border-solar-orange/30' 
+              : 'bg-aurora-green/20 border border-aurora-green/30'
+          }`}>
+            <AlertTriangle className={`h-4 w-4 ${
+              activeAlertCount > 0 ? 'text-solar-orange' : 'text-aurora-green'
+            }`} />
+            <span className={`text-sm font-mono ${
+              activeAlertCount > 0 ? 'text-solar-orange' : 'text-aurora-green'
+            }`}>
+              {activeAlertCount > 0 ? `${activeAlertCount} ACTIVE ALERTS` : 'ALL CLEAR'}
+            </span>
           </div>
         </div>
       </div>
