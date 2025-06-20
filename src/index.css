@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -224,57 +223,77 @@
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), var(--glass-bg));
   }
 
-  /* Animations */
-  @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  /* Enhanced scrollbar for event feed */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s ease-in-out infinite;
+  /* Solar imagery grid enhancements */
+  .solar-image-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
-  /* Chart container styling */
-  .chart-container {
-    @apply aetheria-glass p-6;
+  /* Event feed animations */
+  .event-item-enter {
+    @apply opacity-0 transform translate-y-2;
   }
 
-  /* Button styling */
-  .aetheria-button {
-    @apply aetheria-glass px-6 py-3 text-sm font-medium transition-all duration-300 cursor-pointer;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), var(--glass-bg));
+  .event-item-enter-active {
+    @apply opacity-100 transform translate-y-0 transition-all duration-300;
   }
 
-  .aetheria-button:hover {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(255, 255, 255, 0.1));
-    transform: translateY(-1px);
+  /* Critical alert banner pulse animation */
+  @keyframes critical-pulse {
+    0%, 100% { 
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% { 
+      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
   }
 
-  /* Header styling */
-  .aetheria-header {
-    @apply aetheria-glass border-b border-white/10;
-    background: rgba(0, 0, 0, 0.3);
+  .critical-alert-pulse {
+    animation: critical-pulse 2s infinite;
+  }
+
+  /* Enhanced glass effect for modals */
+  .modal-backdrop {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Responsive image container */
+  .solar-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  }
+
+  .solar-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -297,5 +316,23 @@ h1, h2, h3, h4, h5, h6 {
   
   .aetheria-status-ring {
     @apply w-32 h-32;
+  }
+  
+  .solar-image-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .critical-alert-banner {
+    @apply text-sm;
+  }
+  
+  .event-feed-sidebar {
+    @apply hidden;
+  }
+}
+
+@media (max-width: 640px) {
+  .solar-image-grid {
+    grid-template-columns: 1fr;
   }
 }
