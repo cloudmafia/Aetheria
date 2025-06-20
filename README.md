@@ -1,18 +1,14 @@
-# Welcome to your Lovable project
+# Solar Horizon Watch
 
 ## Project info
-
-**URL**: https://lovable.dev/projects/4b8f1070-9056-482b-8d71-3d3e77c1434a
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
+**Use GitHub**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4b8f1070-9056-482b-8d71-3d3e77c1434a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+Clone this repository and make changes locally, then push to GitHub.
 
 **Use your preferred IDE**
 
@@ -62,12 +58,8 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/4b8f1070-9056-482b-8d71-3d3e77c1434a) and click on Share -> Publish.
+You can deploy this project to your preferred hosting platform.
 
-## Can I connect a custom domain to my Lovable project?
+## Can I connect a custom domain to this project?
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Yes, you can! Follow your hosting platform's instructions for connecting a custom domain.
