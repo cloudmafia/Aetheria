@@ -7,6 +7,11 @@ import DataVisualization from '../components/DataVisualization';
 import SolarImageryGrid from '../components/SolarImageryGrid';
 import RealTimeEventFeed from '../components/RealTimeEventFeed';
 import CriticalAlertBanner from '../components/CriticalAlertBanner';
+import SatelliteTracker from '../components/SatelliteTracker';
+import GeomagneticField from '../components/GeomagneticField';
+import RadioFluxDashboard from '../components/RadioFluxDashboard';
+import HistoricalComparison from '../components/HistoricalComparison';
+import PersonalizedImpact from '../components/PersonalizedImpact';
 
 const Index = () => {
   return (
@@ -38,6 +43,29 @@ const Index = () => {
             <section className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <DataVisualization />
             </section>
+
+            {/* Enhanced Features Grid */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <SatelliteTracker />
+                <GeomagneticField />
+              </div>
+            </section>
+
+            {/* Radio Flux Dashboard */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <RadioFluxDashboard />
+            </section>
+
+            {/* Historical Comparison */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              <HistoricalComparison />
+            </section>
+
+            {/* Personalized Impact */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
+              <PersonalizedImpact />
+            </section>
           </div>
 
           {/* Real-time Event Feed Sidebar */}
@@ -50,7 +78,7 @@ const Index = () => {
 
         {/* Mobile Event Feed */}
         <div className="lg:hidden">
-          <section className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <section className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
             <div className="aetheria-glass p-6">
               <h3 className="text-xl font-display font-semibold cosmic-glow mb-4">
                 Recent Space Weather Events
@@ -63,7 +91,7 @@ const Index = () => {
         </div>
 
         {/* Additional Info Section */}
-        <section className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+        <section className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="data-card p-6">
               <h3 className="text-xl font-semibold mb-4 text-primary">About Aetheria</h3>
@@ -79,30 +107,34 @@ const Index = () => {
                   <p className="text-muted-foreground">Live SDO imagery across six key wavelengths</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Real-Time Alerts</h4>
-                  <p className="text-muted-foreground">Instant notifications for critical space weather events</p>
+                  <h4 className="font-semibold text-foreground mb-2">Real-Time Tracking</h4>
+                  <p className="text-muted-foreground">Satellite positions and orbital mechanics</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-2">3D Visualizations</h4>
+                  <p className="text-muted-foreground">Interactive Earth models and field lines</p>
                 </div>
               </div>
             </div>
 
             <div className="data-card p-6">
-              <h3 className="text-xl font-semibold mb-4 text-primary">Current Solar Cycle</h3>
+              <h3 className="text-xl font-semibold mb-4 text-primary">Enhanced Features</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-muted-foreground">Solar Cycle</span>
-                  <span className="font-mono text-foreground">Cycle 25 - Active Phase</span>
+                  <span className="text-muted-foreground">Satellite Tracking</span>
+                  <span className="font-mono text-aurora-green">Real-time</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-muted-foreground">Peak Expected</span>
-                  <span className="font-mono text-foreground">2024-2026</span>
+                  <span className="text-muted-foreground">Historical Analysis</span>
+                  <span className="font-mono text-cosmic-blue">165+ Years</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-muted-foreground">Current Activity</span>
-                  <span className="font-mono text-aurora-green">High</span>
+                  <span className="text-muted-foreground">Personal Impact</span>
+                  <span className="font-mono text-cosmic-purple">Location-based</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-muted-foreground">Data Sources</span>
-                  <span className="font-mono text-cosmic-blue">NASA • NOAA • ESA</span>
+                  <span className="text-muted-foreground">Educational</span>
+                  <span className="font-mono text-solar-orange">Interactive</span>
                 </div>
               </div>
             </div>
@@ -139,7 +171,7 @@ const Index = () => {
             Aetheria - Advanced Space Weather Observatory
           </p>
           <p className="text-muted-foreground text-xs mt-2">
-            Real-time data from NASA SDO • NOAA SWPC • ESA • Multi-wavelength solar imaging • Critical event alerting
+            Real-time data from NASA SDO • NOAA SWPC • ESA • Celestrak TLEs • Interactive 3D models • Historical analysis • Personalized impact assessment
           </p>
         </div>
       </footer>
