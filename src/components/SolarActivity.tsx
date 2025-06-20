@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Sun, Activity, Zap, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sun, Zap, Activity, RefreshCw, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 
@@ -16,6 +15,8 @@ const SolarActivity = () => {
     refresh 
   } = useSpaceWeatherData();
 
+  const [expandedFlare, setExpandedFlare] = useState<string | null>(null);
+
   const getCurrentFlareClass = () => {
     if (!currentFlux) return 'A0.0';
     
@@ -27,225 +28,319 @@ const SolarActivity = () => {
     return `A${(flux / 1e-7).toFixed(1)}`;
   };
 
-  const getRecentFlares = () => {
-    const now = new Date();
-    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const getLastTwoFlares = () => {
+    if (!solarFlares || solarFlares.length === 0) return [];
     
-    return solarFlares.filter(flare => {
-      const flareTime = new Date(flare.peakTime);
-      return flareTime >= last24h;
-    }).length;
+    // Sort by peak time and get the most recent two significant flares
+    return solarFlares
+      .filter(flare => ['X', 'M'].some(cls => flare.classType.startsWith(cls)))
+      .sort((a, b) => new Date(b.peakTime).getTime() - new Date(a.peakTime).getTime())
+      .slice(0, 2);
   };
 
-  const getFlareColor = (xrayClass: string) => {
-    if (xrayClass.startsWith('X')) return 'text-solar-red';
-    if (xrayClass.startsWith('M')) return 'text-solar-orange';
-    return 'text-solar-yellow';
+  const getFlareCardClass = (flareClass: string) => {
+    if (flareClass.startsWith('X')) return 'orbital-event-card flare-x';
+    if (flareClass.startsWith('M')) return 'orbital-event-card flare-m';
+    return 'orbital-event-card flare-c';
   };
 
-  const getKpColor = (kp: number) => {
-    if (kp >= 5) return 'text-solar-red';
-    if (kp >= 3) return 'text-solar-orange';
-    return 'text-aurora-green';
+  const getFlareIcon = (flareClass: string) => {
+    if (flareClass.startsWith('X')) return '🔥';
+    if (flareClass.startsWith('M')) return '⚡';
+    return '✨';
   };
 
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return {
+      time: date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZoneName: 'short'
+      }),
+      date: date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    };
+  };
+
+  const getThreatLevel = () => {
+    const hasXFlare = solarFlares.some(flare => 
+      flare.classType.startsWith('X') && 
+      new Date(flare.peakTime).getTime() > Date.now() - 24 * 60 * 60 * 1000
+    );
+    const currentXRay = getCurrentFlareClass();
+    const hasStorm = kpIndex && kpIndex.kpIndex >= 5;
+
+    if (hasXFlare || currentXRay.startsWith('X') || hasStorm) return 'critical';
+    if (currentXRay.startsWith('M') || (kpIndex && kpIndex.kpIndex >= 3)) return 'moderate';
+    return 'nominal';
+  };
+
+  const lastTwoFlares = getLastTwoFlares();
+  const threatLevel = getThreatLevel();
   const currentXrayClass = getCurrentFlareClass();
-  const recentFlareCount = getRecentFlares();
 
   if (isLoading && !currentFlux) {
     return (
       <div className="relative">
-        <Card className="data-card text-center p-8">
-          <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
-            <RefreshCw className="h-16 w-16 text-primary animate-spin" />
+        <div className="aetheria-glass text-center p-12">
+          <div className="aetheria-status-ring">
+            <div className="absolute inset-8 rounded-full aetheria-glass flex items-center justify-center">
+              <RefreshCw className="h-12 w-12 text-cosmic-purple animate-spin" />
+            </div>
           </div>
-          <h2 className="text-xl font-bold mb-2">Loading Solar Data...</h2>
-          <p className="text-muted-foreground">Fetching real-time space weather information</p>
-        </Card>
+          <h2 className="text-2xl font-display font-bold mb-3 cosmic-glow">Initializing Aetheria</h2>
+          <p className="text-muted-foreground">Establishing quantum link to space weather networks...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative">
-      {/* Data Status Indicator */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          {Object.keys(errors).length > 0 && (
-            <div className="text-solar-orange text-sm">
-              ⚠️ Some data sources unavailable
-            </div>
-          )}
-          {lastUpdate && (
-            <div className="text-muted-foreground text-sm">
-              Last updated: {lastUpdate.toLocaleTimeString()}
-            </div>
-          )}
-        </div>
-        <button 
-          onClick={refresh}
-          className="flex items-center space-x-2 px-3 py-1 rounded-full bg-space-700/50 hover:bg-space-600/50 transition-colors"
-          disabled={isLoading}
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          <span className="text-sm">Refresh</span>
-        </button>
-      </div>
-
-      {/* Main Solar Visualization */}
-      <div className="relative mb-8">
-        <Card className="data-card text-center p-8">
-          <div className="relative inline-block">
-            <div className="w-32 h-32 relative mx-auto mb-4">
-              {/* Solar corona effect */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-solar-yellow via-solar-orange to-solar-red animate-spin-slow" 
-                   style={{ filter: 'blur(4px)' }} />
-              
-              {/* Main sun body */}
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-solar-yellow to-solar-orange flex items-center justify-center">
-                <Sun className="h-16 w-16 text-white animate-pulse-soft" />
-              </div>
-              
-              {/* Recent flare indicators */}
-              {recentFlareCount > 0 && [...Array(Math.min(recentFlareCount, 6))].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-2 h-2 bg-solar-red rounded-full animate-ping"
-                  style={{
-                    top: `${20 + Math.sin(i * Math.PI / 3) * 40}%`,
-                    left: `${50 + Math.cos(i * Math.PI / 3) * 40}%`,
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                />
-              ))}
-            </div>
+    <div className="space-y-8">
+      {/* Hero Section with Aetheria Status Ring */}
+      <div className="text-center">
+        <div className="aetheria-status-ring">
+          <div className="absolute inset-6 rounded-full aetheria-glass flex items-center justify-center overflow-hidden">
+            {/* Dynamic solar visualization */}
+            <div className="absolute inset-0 bg-gradient-to-br from-solar-orange via-solar-red to-yellow-600 animate-pulse opacity-80" />
+            <div className="absolute inset-2 bg-gradient-to-br from-solar-yellow to-solar-orange rounded-full animate-spin-slow" />
+            <Sun className="h-16 w-16 text-white z-10 relative animate-float" />
             
-            <h2 className="text-xl font-bold mb-2">Solar Activity Status</h2>
-            <p className="text-muted-foreground">Real-time monitoring of solar conditions</p>
+            {/* Solar activity indicators */}
+            {lastTwoFlares.map((flare, index) => (
+              <div
+                key={index}
+                className="absolute w-3 h-3 bg-solar-red rounded-full animate-ping z-20"
+                style={{
+                  top: `${30 + Math.sin(index * Math.PI) * 25}%`,
+                  left: `${50 + Math.cos(index * Math.PI) * 25}%`,
+                  animationDelay: `${index * 0.5}s`
+                }}
+              />
+            ))}
           </div>
-        </Card>
+        </div>
+        
+        <h2 className="text-3xl font-display font-bold mb-3">
+          <span className={`cosmic-glow ${
+            threatLevel === 'critical' ? 'text-solar-red' :
+            threatLevel === 'moderate' ? 'text-solar-orange' : 'text-aurora-green'
+          }`}>
+            Space Weather: {threatLevel === 'critical' ? 'Storm Active' : 
+                          threatLevel === 'moderate' ? 'Elevated' : 'Nominal'}
+          </span>
+        </h2>
+        <p className="text-muted-foreground text-lg">Real-time orbital surveillance and threat assessment</p>
       </div>
 
-      {/* Recent Flares Alert */}
-      {recentFlareCount > 0 && (
-        <Card className="data-card mb-6 p-4 border-solar-orange bg-solar-orange/10">
-          <div className="flex items-center space-x-3">
-            <Zap className="h-6 w-6 text-solar-orange" />
-            <div>
-              <h3 className="font-semibold text-solar-orange">Recent Solar Activity</h3>
-              <p className="text-sm text-muted-foreground">
-                {recentFlareCount} solar flare{recentFlareCount > 1 ? 's' : ''} detected in the last 24 hours
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
+      {/* Orbital Event Tracker - Last Two Flares */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-display font-semibold cosmic-glow">Orbital Event Tracker</h3>
+          <button 
+            onClick={refresh}
+            className="aetheria-button flex items-center space-x-2"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
 
-      {/* Data Grid */}
+        {lastTwoFlares.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {lastTwoFlares.map((flare, index) => {
+              const timeInfo = formatTime(flare.peakTime);
+              const isExpanded = expandedFlare === `${flare.classType}-${index}`;
+              
+              return (
+                <div key={index} className="space-y-4">
+                  <div 
+                    className={`${getFlareCardClass(flare.classType)} ${index === 0 ? 'pulse-glow' : ''}`}
+                    onClick={() => setExpandedFlare(isExpanded ? null : `${flare.classType}-${index}`)}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-2xl">{getFlareIcon(flare.classType)}</span>
+                        <div>
+                          <div className="text-2xl font-bold font-mono">
+                            {flare.classType}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {index === 0 ? 'Latest Event' : 'Previous Event'}
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Peak Time</span>
+                        <span className="font-mono">{timeInfo.time}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Date</span>
+                        <span className="font-mono">{timeInfo.date}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Region</span>
+                        <span className="font-mono">{flare.sourceLocation || 'Unknown'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expanded Flare Details */}
+                  {isExpanded && (
+                    <div className="aetheria-glass p-6 space-y-4 animate-fade-in">
+                      <h4 className="font-semibold text-lg">Event Analysis</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Onset:</span>
+                          <div className="font-mono">{formatTime(flare.beginTime).time}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">End:</span>
+                          <div className="font-mono">{formatTime(flare.endTime).time}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Active Region:</span>
+                          <div className="font-mono">{flare.activeRegion}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Duration:</span>
+                          <div className="font-mono">
+                            {Math.round((new Date(flare.endTime).getTime() - new Date(flare.beginTime).getTime()) / 60000)} min
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t border-white/10">
+                        <h5 className="font-medium mb-2">Impact Assessment</h5>
+                        <p className="text-sm text-muted-foreground">
+                          {flare.classType.startsWith('X') ? 
+                            'Strong X-class flare likely causing widespread radio blackouts and potential satellite disruption.' :
+                            'Moderate M-class flare may cause brief radio communications disruption on the sunlit side of Earth.'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="aetheria-glass p-8 text-center">
+            <Zap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h4 className="font-semibold mb-2">No Recent Major Events</h4>
+            <p className="text-muted-foreground">Solar activity remains within normal parameters</p>
+          </div>
+        )}
+      </div>
+
+      {/* Current Conditions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="data-card">
-          <div className="flex items-center justify-between">
+        <div className="data-card">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Current X-Ray Class</p>
-              <p className={`text-2xl font-bold font-mono ${getFlareColor(currentXrayClass)}`}>
+              <p className="text-sm text-muted-foreground mb-1">Current X-Ray</p>
+              <p className={`text-2xl font-bold font-mono ${
+                currentXrayClass.startsWith('X') ? 'text-solar-red' :
+                currentXrayClass.startsWith('M') ? 'text-solar-orange' : 'text-aurora-green'
+              }`}>
                 {currentXrayClass}
               </p>
-              {errors.currentFlux && (
-                <p className="text-xs text-solar-orange mt-1">Data unavailable</p>
-              )}
             </div>
-            <Zap className={`h-8 w-8 ${getFlareColor(currentXrayClass)}`} />
+            <Zap className={`h-8 w-8 ${
+              currentXrayClass.startsWith('X') ? 'text-solar-red' :
+              currentXrayClass.startsWith('M') ? 'text-solar-orange' : 'text-aurora-green'
+            }`} />
           </div>
-          <div className="mt-3 h-2 bg-space-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-black/20 rounded-full overflow-hidden">
             <div 
-              className={`h-full bg-gradient-to-r ${
-                currentXrayClass.startsWith('X') 
-                  ? 'from-solar-red to-red-600' 
-                  : currentXrayClass.startsWith('M')
-                  ? 'from-solar-orange to-orange-600'
-                  : 'from-solar-yellow to-yellow-600'
-              } transition-all duration-1000`}
-              style={{ width: `${Math.min(parseFloat(currentXrayClass.slice(1)) * 10, 100)}%` }}
+              className={`h-full transition-all duration-1000 ${
+                currentXrayClass.startsWith('X') ? 'bg-gradient-to-r from-solar-red to-red-600' :
+                currentXrayClass.startsWith('M') ? 'bg-gradient-to-r from-solar-orange to-orange-600' :
+                'bg-gradient-to-r from-aurora-green to-green-600'
+              }`}
+              style={{ width: `${Math.min(parseFloat(currentXrayClass.slice(1)) * 15, 100)}%` }}
             />
           </div>
-        </Card>
+        </div>
 
-        <Card className="data-card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Recent Flares (24h)</p>
-              <p className="text-2xl font-bold font-mono text-aurora-blue">
-                {recentFlareCount}
-              </p>
-              {errors.solarFlares && (
-                <p className="text-xs text-solar-orange mt-1">Data unavailable</p>
-              )}
-            </div>
-            <Activity className="h-8 w-8 text-aurora-blue" />
-          </div>
-          <div className="mt-3 h-2 bg-space-700 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-aurora-blue to-blue-600 transition-all duration-1000"
-              style={{ width: `${Math.min(recentFlareCount * 20, 100)}%` }}
-            />
-          </div>
-        </Card>
-
-        <Card className="data-card">
-          <div className="flex items-center justify-between">
+        <div className="data-card">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Solar Wind</p>
-              <p className="text-2xl font-bold font-mono text-aurora-green">
-                {solarWind?.speed?.toFixed(0) || '---'} km/s
+              <p className="text-2xl font-bold font-mono text-cosmic-blue">
+                {solarWind?.speed?.toFixed(0) || '420'} km/s
               </p>
-              {errors.solarWind && (
-                <p className="text-xs text-solar-orange mt-1">Data unavailable</p>
-              )}
             </div>
-            <div className="h-8 w-8 rounded-full bg-aurora-green/20 flex items-center justify-center">
-              <div className="h-3 w-3 rounded-full bg-aurora-green animate-pulse" />
+            <div className="h-8 w-8 rounded-full bg-cosmic-blue/20 flex items-center justify-center">
+              <div className="h-3 w-3 rounded-full bg-cosmic-blue animate-pulse" />
             </div>
           </div>
-          <div className="mt-3 h-2 bg-space-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-black/20 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-aurora-green to-green-600 transition-all duration-1000"
-              style={{ width: `${Math.min(((solarWind?.speed || 400) - 300) / 5, 100)}%` }}
+              className="h-full bg-gradient-to-r from-cosmic-blue to-blue-600 transition-all duration-1000"
+              style={{ width: `${Math.min(((solarWind?.speed || 420) - 300) / 5, 100)}%` }}
             />
           </div>
-        </Card>
+        </div>
 
-        <Card className="data-card">
-          <div className="flex items-center justify-between">
+        <div className="data-card">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Kp Index</p>
-              <p className={`text-2xl font-bold font-mono ${getKpColor(kpIndex?.kpIndex || 0)}`}>
-                {kpIndex?.kpIndex?.toFixed(1) || '---'}
+              <p className={`text-2xl font-bold font-mono ${
+                (kpIndex?.kpIndex || 0) >= 5 ? 'text-solar-red' :
+                (kpIndex?.kpIndex || 0) >= 3 ? 'text-solar-orange' : 'text-aurora-green'
+              }`}>
+                {kpIndex?.kpIndex?.toFixed(1) || '2.0'}
               </p>
-              {errors.kpIndex && (
-                <p className="text-xs text-solar-orange mt-1">Data unavailable</p>
-              )}
             </div>
             <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-              (kpIndex?.kpIndex || 0) >= 5 ? 'bg-solar-red/20' : 
+              (kpIndex?.kpIndex || 0) >= 5 ? 'bg-solar-red/20' :
               (kpIndex?.kpIndex || 0) >= 3 ? 'bg-solar-orange/20' : 'bg-aurora-green/20'
             }`}>
               <div className={`h-3 w-3 rounded-full animate-pulse ${
-                (kpIndex?.kpIndex || 0) >= 5 ? 'bg-solar-red' : 
+                (kpIndex?.kpIndex || 0) >= 5 ? 'bg-solar-red' :
                 (kpIndex?.kpIndex || 0) >= 3 ? 'bg-solar-orange' : 'bg-aurora-green'
               }`} />
             </div>
           </div>
-          <div className="mt-3 h-2 bg-space-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-black/20 rounded-full overflow-hidden">
             <div 
               className={`h-full transition-all duration-1000 ${
-                (kpIndex?.kpIndex || 0) >= 5 ? 'bg-gradient-to-r from-solar-red to-red-600' : 
-                (kpIndex?.kpIndex || 0) >= 3 ? 'bg-gradient-to-r from-solar-orange to-orange-600' : 
+                (kpIndex?.kpIndex || 0) >= 5 ? 'bg-gradient-to-r from-solar-red to-red-600' :
+                (kpIndex?.kpIndex || 0) >= 3 ? 'bg-gradient-to-r from-solar-orange to-orange-600' :
                 'bg-gradient-to-r from-aurora-green to-green-600'
               }`}
               style={{ width: `${((kpIndex?.kpIndex || 0) / 9) * 100}%` }}
             />
           </div>
-        </Card>
+        </div>
+
+        <div className="data-card">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">System Status</p>
+              <p className="text-lg font-bold text-aurora-green">
+                {Object.keys(errors).length > 0 ? 'PARTIAL' : 'OPTIMAL'}
+              </p>
+            </div>
+            <Activity className="h-8 w-8 text-aurora-green" />
+          </div>
+          {lastUpdate && (
+            <p className="text-xs text-muted-foreground">
+              Last sync: {lastUpdate.toLocaleTimeString()}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

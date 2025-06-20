@@ -53,7 +53,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Custom space weather colors
+				// Enhanced Aetheria color palette
 				space: {
 					900: '#0a0a0f',
 					800: '#1a1a2e',
@@ -63,16 +63,12 @@ export default {
 					400: '#60a5fa',
 					300: '#93c5fd',
 				},
-				solar: {
-					red: '#ff4444',
-					orange: '#ff8800',
-					yellow: '#ffdd00',
-				},
-				aurora: {
-					green: '#00ff88',
-					blue: '#0088ff',
-					purple: '#8844ff',
-				},
+				'cosmic-purple': '#8B5CF6',
+				'cosmic-blue': '#3B82F6',
+				'aurora-green': '#10B981',
+				'solar-orange': '#F59E0B',
+				'solar-red': '#EF4444',
+				'solar-yellow': '#EAB308',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -123,6 +119,9 @@ export default {
 					'0%': { opacity: '0', transform: 'translateY(10px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				}
+			},
+			backdropBlur: {
+				xs: '2px',
 			},
 			backgroundImage: {
 				'starfield': "radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px)",
