@@ -1,6 +1,11 @@
-
 import React from 'react';
-import { AlertTriangle, Radio, Zap, Shield, RefreshCw, Clock } from 'lucide-react';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import Radio from 'lucide-react/dist/esm/icons/radio';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Shield from 'lucide-react/dist/esm/icons/shield';
+import Info from 'lucide-react/dist/esm/icons/info';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import { Card } from '@/components/ui/card';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 
@@ -203,33 +208,7 @@ const AlertPanel = () => {
         </div>
       )}
 
-      {/* Alert Classification Legend */}
-      <div className="aetheria-glass p-6">
-        <h3 className="font-semibold mb-4 text-foreground text-lg">Threat Classification Matrix</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-solar-red/5 border border-solar-red/20">
-            <div className="w-4 h-4 bg-solar-red rounded-full flex-shrink-0" />
-            <div>
-              <div className="font-semibold text-solar-red text-sm">CRITICAL</div>
-              <div className="text-xs text-muted-foreground">Immediate response required</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-solar-orange/5 border border-solar-orange/20">
-            <div className="w-4 h-4 bg-solar-orange rounded-full flex-shrink-0" />
-            <div>
-              <div className="font-semibold text-solar-orange text-sm">MODERATE</div>
-              <div className="text-xs text-muted-foreground">Enhanced monitoring advised</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-solar-yellow/5 border border-solar-yellow/20">
-            <div className="w-4 h-4 bg-solar-yellow rounded-full flex-shrink-0" />
-            <div>
-              <div className="font-semibold text-solar-yellow text-sm">MINOR</div>
-              <div className="text-xs text-muted-foreground">Minimal impact expected</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Empty space for additional content if needed */}
     </div>
   );
 };

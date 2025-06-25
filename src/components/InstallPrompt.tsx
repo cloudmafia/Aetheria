@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import Download from 'lucide-react/dist/esm/icons/download';
-import AndroidLogo from 'lucide-react/dist/esm/icons/smartphone';
+import { Smartphone, Download } from 'lucide-react/dist/esm/icons';
 
 // Interface for the BeforeInstallPromptEvent
 interface BeforeInstallPromptEvent extends Event {
@@ -10,8 +9,13 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-// APK download URL pointing to the GitHub repository
-const APK_DOWNLOAD_URL = 'https://github.com/cloudmafia/Aetheria/raw/apk-release/releases/aetheria-space-weather.apk';
+// Direct APK download URL - Make sure this is hosted properly with the correct MIME type
+// Using GitHub Releases for Android APK (application/vnd.android.package-archive)
+// Latest APK from GitHub Releases
+const APK_DOWNLOAD_URL = 'https://github.com/sarsiddi/Aetheria/releases/latest/download/aetheria-space-weather.apk';
+
+// PWA installation URL
+const PWA_URL = 'https://aetheria-space-weather.windsurf.build/';
 
 const InstallPrompt = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,21 +82,42 @@ const InstallPrompt = () => {
     return null;
   }
 
-  // Function to handle APK download
+  // Function to handle Android app installation
+  const handleAndroidInstall = () => {
+    // Open the installation dialog
+    setIsOpen(true);
+  };
+  
+  // Function to handle APK download with proper MIME type
   const handleApkDownload = () => {
-    window.open(APK_DOWNLOAD_URL, '_blank');
+    // Create an anchor element to force download with proper MIME type
+    const link = document.createElement('a');
+    link.href = APK_DOWNLOAD_URL;
+    link.download = 'aetheria-space-weather.apk';
+    // Set attribute to hint MIME type
+    link.setAttribute('type', 'application/vnd.android.package-archive');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <>
-      {/* APK Download button - always visible at the top */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Enhanced Android Install buttons - PWA and APK options always visible at the bottom */}
+      <div className="fixed bottom-6 left-0 right-0 flex justify-center items-center gap-4 z-50">
+        <Button 
+          onClick={handleAndroidInstall}
+          className="flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-full px-6 py-3 shadow-xl font-medium text-base"
+        >
+          <Smartphone size={20} />
+          Install PWA
+        </Button>
         <Button 
           onClick={handleApkDownload}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-full px-4 py-2 shadow-lg"
+          className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white rounded-full px-6 py-3 shadow-xl font-medium text-base animate-pulse"
         >
-          <AndroidLogo size={18} />
-          Download Android App
+          <Download size={20} />
+          Download APK
         </Button>
       </div>
 
@@ -133,16 +158,53 @@ const InstallPrompt = () => {
               
               <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-2">
-                  <AndroidLogo className="h-5 w-5 text-green-600" />
-                  <h4 className="font-medium">Download APK directly</h4>
+                  <Smartphone className="h-5 w-5 text-blue-600" />
+                  <h4 className="font-medium">Install as PWA</h4>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">For advanced users who prefer direct APK installation</p>
+                <p className="text-sm text-muted-foreground mb-3">Get the full app experience with offline access</p>
+                <ol className="list-decimal pl-5 space-y-2 mb-3 text-sm">
+                  <li>Tap <strong>Install Now</strong> below</li>
+                  <li>When prompted, tap <strong>Add to Home Screen</strong></li>
+                  <li>Enjoy the app with full offline functionality!</li>
+                </ol>
+                <Button 
+                  onClick={handleInstallClick}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white"
+                >
+                  Install Now
+                </Button>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
+                <div className="flex items-center gap-3 mb-2">
+                  <Download className="h-5 w-5 text-green-600" />
+                  <h4 className="font-medium">Direct APK Download</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">Download and install our Android app directly</p>
+                <ol className="list-decimal pl-5 space-y-2 mb-3 text-sm">
+                  <li>Tap <strong>Download APK</strong> below</li>
+                  <li>Open the downloaded APK file</li>
+                  <li>Follow installation prompts to complete setup</li>
+                </ol>
                 <Button 
                   onClick={handleApkDownload}
-                  className="w-full bg-gradient-to-r from-green-600 to-green-700"
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white"
                 >
-                  Download APK File
+                  Download APK
                 </Button>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex items-center gap-3 mb-2">
+                  <Smartphone className="h-5 w-5 text-blue-600" />
+                  <h4 className="font-medium">Benefits of PWA Installation</h4>
+                </div>
+                <ul className="text-sm text-muted-foreground mb-3 list-disc pl-5 space-y-1">
+                  <li>Works offline - access data even without internet</li>
+                  <li>Faster loading - optimized for your device</li>
+                  <li>Automatic updates - always get the latest features</li>
+                  <li>Reduced data usage - caches resources locally</li>
+                </ul>
               </div>
               
               <DialogFooter>

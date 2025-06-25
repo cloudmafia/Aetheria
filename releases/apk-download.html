@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aetheria Space Weather APK Download</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            margin-top: 0;
+            color: #4ade80;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 2rem;
+        }
+        .download-btn {
+            background: linear-gradient(to right, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 2rem 0;
+            text-decoration: none;
+        }
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .instructions {
+            text-align: left;
+            margin-top: 2rem;
+        }
+        .instructions ol {
+            margin-left: 1rem;
+            padding-left: 1rem;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Aetheria Space Weather</h1>
+        <p>Download our Android app for the best space weather monitoring experience</p>
+        
+        <!-- Download button using proper MIME type -->
+        <a href="aetheria-space-weather.apk" 
+           download="aetheria-space-weather.apk" 
+           type="application/vnd.android.package-archive"
+           class="download-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download APK
+        </a>
+        
+        <div class="instructions">
+            <h2>Installation Instructions:</h2>
+            <ol>
+                <li>Click the green download button above</li>
+                <li>When the download completes, open the APK file</li>
+                <li>If prompted about security settings, go to Settings and enable "Install from Unknown Sources"</li>
+                <li>Follow the on-screen prompts to install the app</li>
+                <li>Once installed, open the app to start monitoring space weather</li>
+            </ol>
+        </div>
+        
+        <p><small>Current version: 1.0.0 | Last updated: June 25, 2025</small></p>
+    </div>
+    
+    <script>
+        // Add this script to ensure proper MIME type
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadBtn = document.querySelector('.download-btn');
+            downloadBtn.addEventListener('click', function(e) {
+                // This extra JavaScript helps ensure correct MIME type handling
+                e.preventDefault();
+                
+                const link = document.createElement('a');
+                link.href = this.href;
+                link.download = 'aetheria-space-weather.apk';
+                link.type = 'application/vnd.android.package-archive';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+</body>
+</html>

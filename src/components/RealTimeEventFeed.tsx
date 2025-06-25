@@ -1,6 +1,12 @@
-
-import React, { useState, useEffect } from 'react';
-import { Zap, Radio, Globe, Sun, Eye, ChevronRight, X } from 'lucide-react';
+import React from 'react';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Radio from 'lucide-react/dist/esm/icons/radio';
+import Globe from 'lucide-react/dist/esm/icons/globe';
+import Sun from 'lucide-react/dist/esm/icons/sun';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import X from 'lucide-react/dist/esm/icons/x';
+import { useState, useEffect } from 'react';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 
 interface SpaceWeatherEvent {
@@ -25,8 +31,17 @@ const RealTimeEventFeed = () => {
 
     // Process solar flares
     solarFlares.slice(0, 3).forEach((flare, index) => {
-      const severity = flare.classType.startsWith('X') ? 'critical' : 
-                     flare.classType.startsWith('M') ? 'major' : 'moderate';
+      // Properly categorize flares by class
+      let severity;
+      if (flare.classType.startsWith('X')) {
+        severity = 'critical'; // X-class: Red
+      } else if (flare.classType.startsWith('M')) {
+        severity = 'major';    // M-class: Amber
+      } else if (flare.classType.startsWith('C')) {
+        severity = 'moderate'; // C-class: Green
+      } else {
+        severity = 'minor';    // B/A-class: Grey
+      }
       
       newEvents.push({
         id: `flare-${index}`,
@@ -80,8 +95,23 @@ const RealTimeEventFeed = () => {
                      severity === 'major' ? 'text-solar-orange' :
                      severity === 'moderate' ? 'text-solar-yellow' : 'text-aurora-green';
 
+    // Special styling for flare classes
+    let iconWrapper = '';
+    if (type === 'flare') {
+      if (severity === 'critical') {
+        // X-class flares get glowing red effect
+        iconWrapper = 'relative after:absolute after:inset-0 after:bg-solar-red/30 after:blur-md after:animate-pulse after:rounded-full';
+      } else if (severity === 'major') {
+        // M-class flares get amber effect
+        iconWrapper = 'relative after:absolute after:inset-0 after:bg-solar-orange/20 after:blur-sm after:rounded-full';
+      } else {
+        // C-class get light green
+        iconWrapper = 'relative after:absolute after:inset-0 after:bg-aurora-green/20 after:blur-sm after:rounded-full';
+      }
+    }
+
     switch (type) {
-      case 'flare': return <Zap className={`h-4 w-4 ${iconClass}`} />;
+      case 'flare': return <div className={iconWrapper}><Zap className={`h-4 w-4 ${iconClass} relative z-10`} /></div>;
       case 'cme': return <Sun className={`h-4 w-4 ${iconClass}`} />;
       case 'geomagnetic': return <Globe className={`h-4 w-4 ${iconClass}`} />;
       case 'radiation': return <Radio className={`h-4 w-4 ${iconClass}`} />;

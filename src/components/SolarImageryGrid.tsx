@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { ExternalLink, RefreshCw, Zap } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ExternalLink, RefreshCw, Zap, ZoomIn, ZoomOut, Move } from 'lucide-react';
 
 interface SolarImage {
   wavelength: string;
@@ -15,6 +15,12 @@ const SolarImageryGrid = () => {
   const [selectedImage, setSelectedImage] = useState<SolarImage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Mock solar imagery data with realistic URLs and descriptions
   const solarImageryData: SolarImage[] = [
@@ -159,16 +165,109 @@ const SolarImageryGrid = () => {
         </div>
       )}
 
-      {/* Modal for expanded image view */}
+      {/* Modal for expanded image view with interactive zoom and pan */}
       {selectedImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg">
-          <div className="aetheria-glass max-w-4xl max-h-[90vh] overflow-hidden">
+          <div className="aetheria-glass max-w-5xl max-h-[90vh] overflow-hidden">
             <div className="relative">
-              <img 
-                src={selectedImage.url}
-                alt={`Solar ${selectedImage.wavelength}`}
-                className="w-full h-auto max-h-[70vh] object-contain"
-              />
+              <div 
+                ref={containerRef}
+                className="w-full h-[70vh] overflow-hidden relative"
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                onMouseDown={(e) => {
+                  if (e.button === 0) { // Left mouse button
+                    setIsDragging(true);
+                    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+                  }
+                }}
+                onMouseMove={(e) => {
+                  if (isDragging) {
+                    setPosition({
+                      x: e.clientX - dragStart.x,
+                      y: e.clientY - dragStart.y
+                    });
+                  }
+                }}
+                onMouseUp={() => setIsDragging(false)}
+                onMouseLeave={() => setIsDragging(false)}
+                onTouchStart={(e) => {
+                  const touch = e.touches[0];
+                  setIsDragging(true);
+                  setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+                }}
+                onTouchMove={(e) => {
+                  if (isDragging) {
+                    const touch = e.touches[0];
+                    setPosition({
+                      x: touch.clientX - dragStart.x,
+                      y: touch.clientY - dragStart.y
+                    });
+                  }
+                }}
+                onTouchEnd={() => setIsDragging(false)}
+                onWheel={(e) => {
+                  e.preventDefault();
+                  const newZoom = zoomLevel - e.deltaY * 0.005;
+                  setZoomLevel(Math.min(Math.max(newZoom, 0.5), 5));
+                }}
+              >
+                <img 
+                  ref={imageRef}
+                  src={selectedImage.url}
+                  alt={`Solar ${selectedImage.wavelength}`}
+                  className="absolute transform-gpu transition-transform duration-100"
+                  style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${zoomLevel})`,
+                    transformOrigin: 'center center',
+                  }}
+                  onLoad={() => {
+                    // Reset position and zoom when image changes
+                    setZoomLevel(1);
+                    setPosition({ x: 0, y: 0 });
+                  }}
+                />
+                
+                {/* Zoom level indicator */}
+                <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white">
+                  {Math.round(zoomLevel * 100)}%
+                </div>
+                
+                {/* Zoom controls */}
+                <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+                  <button 
+                    className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    onClick={() => setZoomLevel(Math.min(zoomLevel + 0.25, 5))}
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </button>
+                  <button 
+                    className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    onClick={() => setZoomLevel(Math.max(zoomLevel - 0.25, 0.5))}
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </button>
+                  <button 
+                    className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    onClick={() => {
+                      setZoomLevel(1);
+                      setPosition({ x: 0, y: 0 });
+                    }}
+                  >
+                    <Move className="h-4 w-4" />
+                  </button>
+                </div>
+                
+                {/* Touch instructions overlay - only shown briefly on mobile */}
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center pointer-events-none md:hidden touch-instruction-overlay">
+                  <div className="text-center text-white p-6 animate-fade-out" style={{ animationDuration: '3s', animationFillMode: 'forwards', animationDelay: '1s' }}>
+                    <div className="text-2xl mb-2">👆 + 👆</div>
+                    <p>Pinch to zoom</p>
+                    <div className="text-2xl mt-4 mb-2">👆 ↔️</div>
+                    <p>Drag to move</p>
+                  </div>
+                </div>
+              </div>
+              
               <button
                 onClick={() => setSelectedImage(null)}
                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"

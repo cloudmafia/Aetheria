@@ -4,14 +4,18 @@ import Header from '../components/Header';
 import SolarActivity from '../components/SolarActivity';
 import AlertPanel from '../components/AlertPanel';
 import DataVisualization from '../components/DataVisualization';
-import SolarImageryGrid from '../components/SolarImageryGrid';
+import SolarExplorer from '../components/SolarExplorer';
 import RealTimeEventFeed from '../components/RealTimeEventFeed';
 import CriticalAlertBanner from '../components/CriticalAlertBanner';
 import SatelliteTracker from '../components/SatelliteTracker';
 import GeomagneticField from '../components/GeomagneticField';
+import AuroraForecastMap from '../components/AuroraForecastMap';
 import RadioFluxDashboard from '../components/RadioFluxDashboard';
 import HistoricalComparison from '../components/HistoricalComparison';
+import HistoricalTimeline from '../components/HistoricalTimeline';
 import PersonalizedImpact from '../components/PersonalizedImpact';
+import ApiStatusWidget from '../components/ApiStatusWidget';
+import LatestSpaceWeatherNews from '../components/LatestSpaceWeatherNews';
 
 const Index = () => {
   return (
@@ -19,37 +23,57 @@ const Index = () => {
       <CriticalAlertBanner />
       <Header />
       
-      <main className="container mx-auto px-6 py-8 space-y-12">
-        {/* Enhanced Layout with Event Feed */}
-        <div className="flex gap-8">
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        
+        {/* Enhanced Layout with Main Content */}
+        <div className="flex gap-4">
           {/* Main Content Area */}
-          <div className="flex-1 space-y-12">
-            {/* Hero Section with Solar Activity */}
+          <div className="flex-1 space-y-4">
+            {/* Hero Section with Systems Status and Key Components */}
             <section className="animate-fade-in">
-              <SolarActivity />
+              <div className="grid grid-cols-1 gap-4">
+                <SolarActivity />
+              </div>
             </section>
 
-            {/* Multi-Wavelength Solar Imagery */}
+            {/* Priority Components - Now at Top */}
             <section className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <SolarImageryGrid />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <HistoricalComparison />
+                <AlertPanel />
+              </div>
+            </section>
+            
+            {/* Enhanced Features Grid - Moved Up */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <SatelliteTracker />
+                <GeomagneticField />
+                <AuroraForecastMap />
+              </div>
+            </section>
+            
+            {/* Live Event Feed & Latest News */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.23s' }}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2"><RealTimeEventFeed /></div>
+                <LatestSpaceWeatherNews />
+              </div>
+            </section>
+            
+            {/* Historical Timeline */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
+              <HistoricalTimeline />
             </section>
 
-            {/* Alert Panel */}
-            <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <AlertPanel />
+            {/* Multi-Wavelength Solar Explorer */}
+            <section className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <SolarExplorer />
             </section>
 
             {/* Data Visualization */}
-            <section className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <DataVisualization />
-            </section>
-
-            {/* Enhanced Features Grid */}
             <section className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <SatelliteTracker />
-                <GeomagneticField />
-              </div>
+              <DataVisualization />
             </section>
 
             {/* Radio Flux Dashboard */}
@@ -57,38 +81,16 @@ const Index = () => {
               <RadioFluxDashboard />
             </section>
 
-            {/* Historical Comparison */}
-            <section className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <HistoricalComparison />
-            </section>
-
             {/* Personalized Impact */}
-            <section className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            <section className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
               <PersonalizedImpact />
             </section>
           </div>
 
-          {/* Real-time Event Feed Sidebar */}
-          <div className="hidden lg:block">
-            <div className="sticky top-24">
-              <RealTimeEventFeed />
-            </div>
-          </div>
+          {/* Sidebar removed as event feed moved to top */}
         </div>
 
-        {/* Mobile Event Feed */}
-        <div className="lg:hidden">
-          <section className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
-            <div className="aetheria-glass p-6">
-              <h3 className="text-xl font-display font-semibold cosmic-glow mb-4">
-                Recent Space Weather Events
-              </h3>
-              <div className="max-h-64 overflow-y-auto">
-                <RealTimeEventFeed />
-              </div>
-            </div>
-          </section>
-        </div>
+        {/* Mobile Event Feed removed as it's now at the top of the page for all screen sizes */}
 
         {/* Additional Info Section */}
         <section className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
@@ -175,6 +177,9 @@ const Index = () => {
           </p>
         </div>
       </footer>
+      
+      {/* API Status Widget */}
+      <ApiStatusWidget />
     </div>
   );
 };

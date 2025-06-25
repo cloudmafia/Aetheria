@@ -22,6 +22,8 @@ const PersonalizedImpact = () => {
   const [userLocation, setUserLocation] = useState<LocationImpact | null>(null);
   const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
   const [showCMEJourney, setShowCMEJourney] = useState(false);
+  const [animationStep, setAnimationStep] = useState(0);
+  const [animationPlaying, setAnimationPlaying] = useState(false);
   const { kpIndex, currentFlux, alerts } = useSpaceWeatherData();
 
   const glossaryTerms: GlossaryTerm[] = [
@@ -309,24 +311,141 @@ const PersonalizedImpact = () => {
               </div>
               
               <div className="space-y-4">
-                <div className="h-64 bg-gradient-to-r from-yellow-400 via-red-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <div className="text-lg font-bold mb-2">🌞 ➡️ 🌍</div>
-                    <div className="text-sm">Animated CME Journey</div>
-                    <div className="text-xs mt-2 opacity-75">
-                      Sun → Solar Wind → Magnetosphere → Aurora
+                <div className="relative h-80 bg-black rounded-lg overflow-hidden border border-white/10">
+                  {/* Sun */}
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-600 to-yellow-300 animate-pulse shadow-lg shadow-yellow-500/50 z-10">
+                    {animationStep >= 1 && (
+                      <div className="absolute -right-8 -top-8 w-16 h-16 bg-red-500/70 rounded-full animate-ping blur-md"></div>
+                    )}
+                  </div>
+
+                  {/* Earth */}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-green-500 shadow-md z-10">
+                    {/* Magnetosphere */}
+                    <div className={`absolute inset-[-10px] rounded-full border-2 border-blue-400/30 ${animationStep >= 3 ? 'border-blue-400/70' : ''} transition-all duration-1000`}></div>
+                    
+                    {/* Aurora */}
+                    {animationStep >= 4 && (
+                      <div className="absolute inset-[-3px] rounded-full border-2 border-green-400/70 animate-pulse"></div>
+                    )}
+                  </div>
+
+                  {/* CME Particle Stream */}
+                  {animationStep >= 2 && (
+                    <div className="absolute left-28 top-1/2 -translate-y-1/2 h-2 bg-gradient-to-r from-red-500 via-yellow-500 to-transparent" style={{
+                      width: animationStep >= 3 ? 'calc(100% - 8rem)' : '40%',
+                      transition: 'width 1s ease-in-out',
+                      boxShadow: '0 0 15px rgba(255, 100, 50, 0.7)'
+                    }}></div>
+                  )}
+
+                  {/* Impact Particles */}
+                  {animationStep >= 3 && (
+                    <div className="absolute right-24 top-1/2 -translate-y-1/2 flex gap-1">
+                      <span className="w-1 h-1 bg-orange-500 rounded-full animate-ping"></span>
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full animate-ping delay-100"></span>
+                      <span className="w-1 h-1 bg-red-500 rounded-full animate-ping delay-200"></span>
                     </div>
+                  )}
+                  
+                  {/* Magnetic Field Lines */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      {/* Magnetic Field Lines */}
+                      <path d="M30,30 C50,40 50,60 80,50" stroke="rgba(120, 160, 255, 0.3)" fill="none" strokeWidth="0.5" />
+                      <path d="M30,50 C50,60 50,40 80,60" stroke="rgba(120, 160, 255, 0.3)" fill="none" strokeWidth="0.5" />
+                      <path d="M30,70 C50,80 50,20 80,40" stroke="rgba(120, 160, 255, 0.3)" fill="none" strokeWidth="0.5" />
+                      
+                      {/* Disturbed Field Lines (shown when CME hits) */}
+                      {animationStep >= 3 && (
+                        <>
+                          <path d="M30,30 C40,35 60,25 80,50" stroke="rgba(120, 200, 255, 0.5)" fill="none" strokeWidth="1" className="animate-pulse" />
+                          <path d="M30,50 C40,65 60,30 80,60" stroke="rgba(120, 200, 255, 0.5)" fill="none" strokeWidth="1" className="animate-pulse delay-100" />
+                          <path d="M30,70 C45,85 55,15 80,40" stroke="rgba(120, 200, 255, 0.5)" fill="none" strokeWidth="1" className="animate-pulse delay-200" />
+                        </>
+                      )}
+                    </svg>
                   </div>
                 </div>
                 
-                <div className="text-sm text-muted-foreground">
-                  <p>This interactive animation would show:</p>
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>CME eruption from solar active region</li>
-                    <li>Propagation through interplanetary space</li>
-                    <li>Interaction with Earth's magnetosphere</li>
-                    <li>Formation of geomagnetic storm and aurora</li>
-                  </ul>
+                {/* Animation Controls */}
+                <div className="flex flex-col space-y-3">
+                  {/* Step Description */}
+                  <div className="bg-white/5 p-3 rounded-md">
+                    <h5 className="font-medium text-sm mb-1">
+                      {animationStep === 0 && "Start the CME Journey Animation"}
+                      {animationStep === 1 && "Step 1: Solar Eruption"}
+                      {animationStep === 2 && "Step 2: CME Propagation"}
+                      {animationStep === 3 && "Step 3: Magnetosphere Impact"}
+                      {animationStep === 4 && "Step 4: Geomagnetic Storm & Aurora"}
+                    </h5>
+                    <p className="text-xs text-muted-foreground">
+                      {animationStep === 0 && "Click 'Play' to begin the animation or use the step buttons to manually explore the CME journey from Sun to Earth."}
+                      {animationStep === 1 && "A powerful eruption on the Sun's surface releases a massive cloud of magnetized plasma into space."}
+                      {animationStep === 2 && "The CME travels through space at speeds of 500-3000 km/s (1-7 million mph), taking 1-3 days to reach Earth."}
+                      {animationStep === 3 && "The CME collides with Earth's protective magnetosphere, causing compression and reconnection of field lines."}
+                      {animationStep === 4 && "Solar particles funnel along field lines toward the poles, exciting atmospheric gases and creating aurora displays."}
+                    </p>
+                  </div>
+                  
+                  {/* Controls */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => {
+                          if (animationStep > 0) setAnimationStep(prev => prev - 1);
+                        }}
+                        disabled={animationStep === 0}
+                        className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                      >
+                        Previous
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (animationStep < 4) setAnimationStep(prev => prev + 1);
+                        }}
+                        disabled={animationStep === 4}
+                        className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                      >
+                        Next
+                      </button>
+                    </div>
+                    
+                    <button 
+                      onClick={() => {
+                        if (!animationPlaying) {
+                          setAnimationPlaying(true);
+                          setAnimationStep(0);
+                          // Auto-play through all steps
+                          const interval = setInterval(() => {
+                            setAnimationStep(prev => {
+                              if (prev >= 4) {
+                                clearInterval(interval);
+                                setAnimationPlaying(false);
+                                return 4;
+                              }
+                              return prev + 1;
+                            });
+                          }, 2000); // Advance every 2 seconds
+                        }
+                      }}
+                      disabled={animationPlaying}
+                      className="px-3 py-1 rounded bg-blue-600/70 hover:bg-blue-500/70 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                    >
+                      {animationPlaying ? "Playing..." : "Play Animation"}
+                    </button>
+                  </div>
+                  
+                  {/* Step Indicator */}
+                  <div className="flex justify-between items-center px-1">
+                    {[0, 1, 2, 3, 4].map(step => (
+                      <div 
+                        key={step}
+                        className={`w-6 h-1 rounded-full cursor-pointer ${step <= animationStep ? 'bg-blue-400' : 'bg-white/20'}`}
+                        onClick={() => setAnimationStep(step)}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

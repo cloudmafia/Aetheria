@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { Sun, Zap, Activity, RefreshCw, ChevronRight } from 'lucide-react';
+import Sun from 'lucide-react/dist/esm/icons/sun';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Activity from 'lucide-react/dist/esm/icons/activity';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Card } from '@/components/ui/card';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 
@@ -85,11 +89,9 @@ const SolarActivity = () => {
   if (isLoading && !currentFlux) {
     return (
       <div className="relative">
-        <div className="aetheria-glass text-center p-12">
-          <div className="aetheria-status-ring">
-            <div className="absolute inset-8 rounded-full aetheria-glass flex items-center justify-center">
-              <RefreshCw className="h-12 w-12 text-cosmic-purple animate-spin" />
-            </div>
+        <div className="aetheria-glass text-center p-8">
+          <div className="flex justify-center mb-4">
+            <RefreshCw className="h-10 w-10 text-cosmic-purple animate-spin" />
           </div>
           <h2 className="text-2xl font-display font-bold mb-3 cosmic-glow">Initializing Aetheria</h2>
           <p className="text-muted-foreground">Establishing quantum link to space weather networks...</p>
@@ -100,27 +102,24 @@ const SolarActivity = () => {
 
   return (
     <div className="space-y-8">
-      {/* Hero Section with Aetheria Status Ring */}
+      {/* Hero Section with Solar Activity Data */}
       <div className="text-center">
-        <div className="aetheria-status-ring">
-          <div className="absolute inset-6 rounded-full aetheria-glass flex items-center justify-center overflow-hidden">
-            {/* Dynamic solar visualization */}
-            <div className="absolute inset-0 bg-gradient-to-br from-solar-orange via-solar-red to-yellow-600 animate-pulse opacity-80" />
-            <div className="absolute inset-2 bg-gradient-to-br from-solar-yellow to-solar-orange rounded-full animate-spin-slow" />
-            <Sun className="h-16 w-16 text-white z-10 relative animate-float" />
-            
-            {/* Solar activity indicators */}
-            {lastTwoFlares.map((flare, index) => (
-              <div
-                key={index}
-                className="absolute w-3 h-3 bg-solar-red rounded-full animate-ping z-20"
-                style={{
-                  top: `${30 + Math.sin(index * Math.PI) * 25}%`,
-                  left: `${50 + Math.cos(index * Math.PI) * 25}%`,
-                  animationDelay: `${index * 0.5}s`
-                }}
-              />
-            ))}
+        <div className="aetheria-glass p-6 rounded-xl mb-6">
+          <div className="flex items-center justify-center space-x-4 mb-4">
+            <div className="bg-gradient-to-br from-solar-orange via-solar-red to-yellow-600 h-16 w-16 rounded-full flex items-center justify-center relative">
+              <div className="absolute inset-0 rounded-full animate-pulse opacity-80" />
+              {/* Solar surface texture */}
+              <div className="absolute inset-0 rounded-full opacity-40 mix-blend-overlay" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='40' stroke='white' stroke-width='1' fill='none' opacity='0.2' /%3E%3C/svg%3E")`,
+                animation: 'rotate 80s linear infinite'
+              }} />
+              {/* Current flare class */}
+              <div className="relative z-10 text-3xl font-mono font-bold tracking-tighter">{currentXrayClass}</div>
+            </div>
+            <div className="text-left">
+              <h3 className="text-lg font-bold">Current X-Ray Flux</h3>
+              <p className="text-sm text-muted-foreground">Solar Activity Level</p>
+            </div>
           </div>
         </div>
         

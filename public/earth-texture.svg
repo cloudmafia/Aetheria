@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="256" viewBox="0 0 512 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background ocean color -->
+  <rect width="512" height="256" fill="#1a53b0" />
+  
+  <!-- Simplified continents -->
+  <!-- North America -->
+  <path d="M30,70 Q50,50 70,60 Q100,70 120,60 Q140,50 150,70 Q160,90 150,110 Q130,130 110,120 Q90,130 70,120 Q50,110 40,90 Z" fill="#2da44a" />
+  
+  <!-- South America -->
+  <path d="M120,150 Q140,130 160,140 Q180,150 170,180 Q160,200 140,190 Q120,180 120,150 Z" fill="#2da44a" />
+  
+  <!-- Europe -->
+  <path d="M240,60 Q260,50 280,60 Q300,70 290,90 Q280,100 260,90 Q240,80 240,60 Z" fill="#2da44a" />
+  
+  <!-- Africa -->
+  <path d="M230,100 Q250,90 270,100 Q290,120 280,150 Q260,170 240,150 Q220,130 230,100 Z" fill="#2da44a" />
+  
+  <!-- Asia -->
+  <path d="M300,50 Q330,40 360,50 Q390,70 400,100 Q380,130 350,120 Q320,100 300,80 Q290,60 300,50 Z" fill="#2da44a" />
+  
+  <!-- Australia -->
+  <path d="M380,160 Q400,150 420,160 Q430,180 420,200 Q400,210 380,200 Q370,180 380,160 Z" fill="#2da44a" />
+  
+  <!-- Antarctica -->
+  <path d="M150,220 Q200,210 250,220 Q300,230 350,220 Q370,230 340,240 Q280,250 220,240 Q180,230 150,220 Z" fill="#e6e6e6" />
+  
+  <!-- Grid lines - latitude -->
+  <line x1="0" y1="128" x2="512" y2="128" stroke="#ffffff" stroke-opacity="0.2" />
+  <line x1="0" y1="64" x2="512" y2="64" stroke="#ffffff" stroke-opacity="0.2" />
+  <line x1="0" y1="192" x2="512" y2="192" stroke="#ffffff" stroke-opacity="0.2" />
+  
+  <!-- Grid lines - longitude -->
+  <line x1="128" y1="0" x2="128" y2="256" stroke="#ffffff" stroke-opacity="0.2" />
+  <line x1="256" y1="0" x2="256" y2="256" stroke="#ffffff" stroke-opacity="0.2" />
+  <line x1="384" y1="0" x2="384" y2="256" stroke="#ffffff" stroke-opacity="0.2" />
+</svg>

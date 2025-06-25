@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { Radio, Zap, Activity, TrendingUp } from 'lucide-react';
+import InteractiveLineChart from '@/components/ui/InteractiveLineChart';
+import Radio from 'lucide-react/dist/esm/icons/radio';
+import Zap from 'lucide-react/dist/esm/icons/zap';
+import Activity from 'lucide-react/dist/esm/icons/activity';
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 
 interface FluxData {
   time: string;
@@ -160,40 +163,12 @@ const RadioFluxDashboard = () => {
             </div>
             
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartConfig.data}>
-                  <XAxis 
-                    dataKey="time" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#94a3b8' }}
-                  />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#94a3b8' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '0.5rem',
-                      backdropFilter: 'blur(16px)'
-                    }}
-                  />
-                  {chartConfig.lines.map(line => (
-                    <Line
-                      key={line.key}
-                      type="monotone"
-                      dataKey={line.key}
-                      stroke={line.color}
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 4, fill: line.color }}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+              <InteractiveLineChart
+                data={chartConfig.data}
+                lines={chartConfig.lines}
+                unit={chartConfig.unit}
+                height="100%"
+              />
             </div>
           </div>
 

@@ -28,6 +28,48 @@ class SpaceWeatherAPI {
   private cache = new Map<string, { data: any; timestamp: number }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+  // Fetches data from APIs with proper error handling and retry logic
+  private async fetchData(url: string): Promise<any> {
+    // Maximum retry attempts
+    const maxRetries = 2;
+    let retries = 0;
+    let lastError: Error;
+    
+    // Try NASA's CORS-friendly APIs directly first when possible
+    // For some endpoints that may not support CORS, use a more reliable CORS proxy
+    const apiUrl = url.includes('nasa.gov') || url.includes('swpc.noaa.gov/products/json') 
+      ? url // Direct for NASA APIs that support CORS
+      : `https://corsproxy.io/?${encodeURIComponent(url)}`; // More reliable CORS proxy
+      
+    while (retries <= maxRetries) {
+      try {
+        const response = await fetch(apiUrl, { 
+          cache: 'no-cache',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error(`Error fetching data (attempt ${retries + 1}/${maxRetries + 1}):`, error);
+        lastError = error as Error;
+        retries++;
+        
+        if (retries <= maxRetries) {
+          // Exponential backoff: 1s, 2s, 4s, etc.
+          const delay = Math.pow(2, retries - 1) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+    
+    // All retries failed, throw the last error
+    throw lastError;
+  }
+
   private async fetchWithCache<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
     const cached = this.cache.get(key);
     const now = Date.now();
@@ -64,15 +106,7 @@ class SpaceWeatherAPI {
       for (const endpoint of endpoints) {
         try {
           console.log(`Trying solar flare endpoint: ${endpoint}`);
-          const response = await fetch(`${CORS_PROXY}${encodeURIComponent(endpoint)}`);
-          
-          if (!response.ok) {
-            console.warn(`Endpoint ${endpoint} returned ${response.status}`);
-            continue;
-          }
-
-          const result = await response.json();
-          const data = result.contents ? JSON.parse(result.contents) : result;
+          const data = await this.fetchData(endpoint);
           
           if (Array.isArray(data) && data.length > 0) {
             console.log(`Successfully fetched ${data.length} flare records from ${endpoint}`);
@@ -117,41 +151,37 @@ class SpaceWeatherAPI {
 
   async getCurrentXRayFlux(): Promise<{ timestamp: string; shortFlux: number; longFlux: number }> {
     return this.fetchWithCache('xray-flux', async () => {
-      const response = await fetch(`${CORS_PROXY}${encodeURIComponent(`${NOAA_BASE_URL}/goes/xray-flux-primary.json`)}`);
-      
-      if (!response.ok) {
-        console.warn('X-ray flux endpoint failed, using fallback');
+      try {
+        const data = await this.fetchData(`${NOAA_BASE_URL}/goes/xray-flux-primary.json`);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          const latest = data[data.length - 1];
+          return {
+            timestamp: latest.time_tag,
+            shortFlux: parseFloat(latest.flux) || parseFloat(latest.flux_0_1_8nm) || 1.2e-6,
+            longFlux: parseFloat(latest.flux_0_05_4nm) || 8.5e-7
+          };
+        }
+
+        throw new Error('No X-ray flux data available');
+      } catch (error) {
+        console.warn('X-ray flux endpoint failed, using fallback', error);
         return {
           timestamp: new Date().toISOString(),
           shortFlux: 1.2e-6, // Simulated current flux
           longFlux: 8.5e-7
         };
       }
-
-      const result = await response.json();
-      const data = result.contents ? JSON.parse(result.contents) : result;
-      
-      if (Array.isArray(data) && data.length > 0) {
-        const latest = data[data.length - 1];
-        return {
-          timestamp: latest.time_tag,
-          shortFlux: parseFloat(latest.flux) || parseFloat(latest.flux_0_1_8nm) || 1.2e-6,
-          longFlux: parseFloat(latest.flux_0_05_4nm) || 8.5e-7
-        };
-      }
-
-      throw new Error('No X-ray flux data available');
     });
   }
 
   async getKpIndex(): Promise<GemagneticData> {
     return this.fetchWithCache('kp-index', async () => {
-      const response = await fetch(`${CORS_PROXY}${encodeURIComponent(`${NOAA_BASE_URL}/planetary_k_index_1m.json`)}`);
+      const response = await this.fetchData(`${NOAA_BASE_URL}/planetary_k_index_1m.json`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const result = await response.json();
-      const data = result.contents ? JSON.parse(result.contents) : result;
+      const data = response;
       
       const latest = data[data.length - 1];
       const kp = parseFloat(latest.estimated_kp) || parseFloat(latest.kp_index) || 2.0;
@@ -172,11 +202,7 @@ class SpaceWeatherAPI {
   async getSolarWind(): Promise<SolarWindData> {
     return this.fetchWithCache('solar-wind', async () => {
       try {
-        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(`${NOAA_BASE_URL}/ace/swepam_1m.json`)}`);
-        if (!response.ok) throw new Error('Solar wind endpoint failed');
-        
-        const result = await response.json();
-        const data = result.contents ? JSON.parse(result.contents) : result;
+        const data = await this.fetchData(`${NOAA_BASE_URL}/ace/swepam_1m.json`);
         
         const latest = data[data.length - 1];
         return {
@@ -210,11 +236,7 @@ class SpaceWeatherAPI {
   }>> {
     return this.fetchWithCache('alerts', async () => {
       try {
-        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(`${NOAA_BASE_URL}/alerts.json`)}`);
-        if (!response.ok) throw new Error('Alerts endpoint failed');
-        
-        const result = await response.json();
-        const data = result.contents ? JSON.parse(result.contents) : result;
+        const data = await this.fetchData(`${NOAA_BASE_URL}/alerts.json`);
         
         return data.map((alert: any, index: number) => ({
           id: `alert-${index}`,
