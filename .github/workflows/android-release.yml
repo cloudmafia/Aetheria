@@ -52,7 +52,7 @@ jobs:
         run: mv releases/WebViewApp/app/build/outputs/apk/release/app-release.apk releases/WebViewApp/app/build/outputs/apk/release/aetheria-space-weather.apk
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aetheria-space-weather-apk
           path: releases/WebViewApp/app/build/outputs/apk/release/aetheria-space-weather.apk
