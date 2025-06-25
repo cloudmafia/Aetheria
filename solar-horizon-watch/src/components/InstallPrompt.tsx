@@ -12,7 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 // Direct APK download URL - Make sure this is hosted properly with the correct MIME type
 // Using GitHub Releases for Android APK (application/vnd.android.package-archive)
 // Latest APK from GitHub Releases
-const APK_DOWNLOAD_URL = 'https://github.com/sarsiddi/Aetheria/releases/latest/download/aetheria-space-weather.apk';
+const APK_DOWNLOAD_URL = 'https://github.com/cloudmafia/Aetheria/releases/latest/download/aetheria-space-weather.apk';
 
 // PWA installation URL
 const PWA_URL = 'https://aetheria-space-weather.windsurf.build/';
