@@ -6,7 +6,8 @@ on:
       - main
       - apk-release
     paths:
-      - 'releases/WebViewApp/**'
+      - 'solar-horizon-watch/releases/WebViewApp/**'
+      - '.github/workflows/android-release.yml'
     tags:
       - 'v*'
   workflow_dispatch:
