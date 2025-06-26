@@ -74,7 +74,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Latest GitHub Release
+      - name: Delete existing 'latest' release if it exists
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/apk-release'
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          tag_name: latest
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create new 'latest' GitHub Release
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/apk-release'
         uses: softprops/action-gh-release@v1
         with:
@@ -83,7 +92,6 @@ jobs:
           body: 'This is the latest continuous build from the main branch. This APK is for testing purposes and may be unstable.'
           draft: false
           prerelease: true
-          allow_updates: true
           files: solar-horizon-watch/releases/WebViewApp/app/build/outputs/apk/release/aetheria-space-weather.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
