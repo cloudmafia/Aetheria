@@ -1,12 +1,12 @@
 package com.aetheria.spaceweather;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private WebView webView;
     
     @Override
@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+        // Note: AppCache has been deprecated and removed in newer Android versions
         
         // Use WebViewClient to keep navigation within the WebView
         webView.setWebViewClient(new WebViewClient());
