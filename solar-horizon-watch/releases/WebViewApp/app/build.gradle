@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.aetheria.spaceweather"
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.aetheria.spaceweather"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
@@ -41,4 +41,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.webkit:webkit:1.7.0'
     implementation 'androidx.core:core:1.12.0'
+    // Add explicit Android SDK dependencies
+    implementation 'com.google.android.material:material:1.9.0'
 }
