@@ -5,9 +5,6 @@ on:
     branches:
       - main
       - apk-release
-    paths:
-      - 'solar-horizon-watch/releases/WebViewApp/**'
-      - '.github/workflows/android-release.yml'
     tags:
       - 'v*'
   workflow_dispatch:
@@ -15,6 +12,9 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -72,7 +72,7 @@ jobs:
           prerelease: false
           files: solar-horizon-watch/releases/WebViewApp/app/build/outputs/apk/release/aetheria-space-weather.apk
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_WRITE }}
 
       # Update or create the 'latest' GitHub Release. softprops/action-gh-release will
       # automatically update an existing release with the same tag if it exists.
@@ -88,5 +88,5 @@ jobs:
           fail_on_unmatched_files: false
           files: solar-horizon-watch/releases/WebViewApp/app/build/outputs/apk/release/aetheria-space-weather.apk
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_WRITE }}
 
